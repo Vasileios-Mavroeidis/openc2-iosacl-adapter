@@ -19,8 +19,8 @@ openc2_slpf_cisco_ios_TRANSPORT_allow_deny <- function(slpf_action){
       
       #Netmiko (python library) is used to initiate a connection to the consumer and submit/issue the commands
       #Username and Password are used. Replace with token or different authentication mechanisms in the front end technology and openc2proxy (encryption should be supported)
-      connection <- netmiko$ConnectHandler(device_type = "cisco_xe", ip = consumer$hostname, username = consumer$username, password = consumer$password, port = consumer$port)
-      #connection <- netmiko$ConnectHandler(device_type = "cisco_xe", ip = consumer$hostname, username = consumer$username, port = consumer$port, use_keys='True', key_file="private_key")
+      connection <- netmiko$ConnectHandler(device_type = "cisco_xe", ip = consumer$hostname, username = consumer$username, port = consumer$port, use_keys='True', key_file="private_key")
+      #connection <- netmiko$ConnectHandler(device_type = "cisco_xe", ip = consumer$hostname, username = consumer$username, password = consumer$password, port = consumer$port)
       
       #Generates Time, UUIDv4, Date
       uuid_time_date_list <- uuid_time_date()
@@ -63,8 +63,8 @@ openc2_slpf_cisco_ios_TRANSPORT_update <- function(){
       
       #Netmiko (python library) is used to initiate a connection to the consumer and submit/issue the commands
       #Username and Password are used. Replace with token or different authentication mechanisms in the front end technology and openc2proxy (encryption should be supported)
-      connection <- netmiko$ConnectHandler(device_type = "cisco_xe", ip = consumer$hostname, username = consumer$username, password = consumer$password, port = consumer$port)
-      #connection <- netmiko$ConnectHandler(device_type = "cisco_xe", ip = consumer$hostname, username = consumer$username, port = consumer$port, use_keys='True', key_file="private_key")
+      connection <- netmiko$ConnectHandler(device_type = "cisco_xe", ip = consumer$hostname, username = consumer$username, port = consumer$port, use_keys='True', key_file="private_key")
+      #connection <- netmiko$ConnectHandler(device_type = "cisco_xe", ip = consumer$hostname, username = consumer$username, password = consumer$password, port = consumer$port)
       
       #Generates Time, UUIDv4, Date
       uuid_time_date_list <- uuid_time_date()
@@ -95,7 +95,7 @@ openc2_slpf_cisco_ios_TRANSPORT_delete <- function(slpf_action){
    for (i in actuator_specifier){
       consumer <- asset_id_mapping() #extracts info from the actuator file based on the asset_id(s) specified
       assign("acl_id", value = consumer$acl_id, envir = .GlobalEnv) #assigns the acl_id in the global environment. From there it is assigned to the ACL$access_list_number_or_name
-      
+   
       if (consumer$acl_type=="ipv4"){ #if the consumer_id is binded with an IPv4 ACL then:
          ACL$access_list <<- cisco_access_list[1]
          ACL$access_list_type <<- cisco_access_list_type[2]
@@ -111,8 +111,8 @@ openc2_slpf_cisco_ios_TRANSPORT_delete <- function(slpf_action){
       
       #Netmiko (python library) is used to initiate a connection to the consumer and submit/issue the commands
       #Username and Password are used. Replace with token or different authentication mechanisms in the front end technology and openc2proxy (encryption should be supported)
-      connection <- netmiko$ConnectHandler(device_type = "cisco_xe", ip = consumer$hostname, username = consumer$username, password = consumer$password, port = consumer$port)
-      #connection <- netmiko$ConnectHandler(device_type = "cisco_xe", ip = consumer$hostname, username = consumer$username, port = consumer$port, use_keys='True', key_file="private_key")
+      connection <- netmiko$ConnectHandler(device_type = "cisco_xe", ip = consumer$hostname, username = consumer$username, port = consumer$port, use_keys='True', key_file="private_key")
+      #connection <- netmiko$ConnectHandler(device_type = "cisco_xe", ip = consumer$hostname, username = consumer$username, password = consumer$password, port = consumer$port)
       
       #Generates Time, UUIDv4, Date
       uuid_time_date_list <- uuid_time_date()

@@ -12,19 +12,51 @@ As documented in [Public Participation Invited](https://github.com/oasis-open/op
 
 ## Statement of Purpose
 
-- To demonstrate an adapter translating OpenC2 commands to Cisco IOS format (syntax) for Access Control Lists (ACLs) management, and
+- To demonstrate an adapter translating OpenC2 commands to Cisco ACL format (syntax) for Access Control Lists (ACLs) management, and
 
 - Provide an R code base to facilitate other prototype efforts,
 
 ### openc2-iosacl-adapter
 
-The openc2-iosacl-adapter is a software tool (Proof of Concept) written in R for parsing, translating, and executing OpenC2 commands to CISCO devices running IOS (Internetwork Operating System) and support Access Control Lists (ACL). All the activity, response codes and messages are stored into a database.
+The openc2-iosacl-adapter is a software tool (Proof of Concept) written in R for parsing, translating, and executing OpenC2 commands to CISCO devices running IOS (Internetwork Operating System) and IOS-XE, and support Access Control Lists (ACL). All the activity, response codes and messages are stored into a database.
 
-The repository contains source code (multiple interdependent R files) [here](https://github.com/oasis-open/openc2-iosacl-adapter/tree/master/code), sample actuator/consumer schema and recommended information for inclusion [here](https://github.com/oasis-open/openc2-iosacl-adapter/tree/master/sample-actuator-information-file), OpenC2 sample commands for experimentation [here](https://github.com/oasis-open/openc2-iosacl-adapter/tree/master/sample-openc2-slpf-commands) and [here](https://github.com/oasis-open/openc2-iosacl-adapter/tree/master/sample-openc2-slpf-commands-for-terminal-use), and some other folders containing Cisco-related details to assist in the configuration of the actuator . The tool can be used as a command-line tool or as a R library which can be included in other applications.
+The repository contains source code (multiple interdependent R files) [here](https://github.com/oasis-open/openc2-iosacl-adapter/tree/master/code), a sample actuator (consumer) schema/strucure file with recommended information for inclusion [here](https://github.com/oasis-open/openc2-iosacl-adapter/tree/master/sample-actuator-information-file) (this is omitted if we connect the openc2-iosacl-adapter with an orchestrator), OpenC2 sample commands for experimentation [here](https://github.com/oasis-open/openc2-iosacl-adapter/tree/master/sample-openc2-slpf-commands) and [here](https://github.com/oasis-open/openc2-iosacl-adapter/tree/master/sample-openc2-slpf-commands-for-terminal-use), and some other folders containing Cisco-related details to assist in the configuration of the actuator. The tool can be used as a command-line tool or integrated in other applications, such as OpenC2 orchestrator or proxy.
+
+#### Note: The tool participated for testing conformance and interoperability at the OpenC2 Plugfest in Janury 27 and 28 2020. You can find more information about the use case tested and the lab [HERE](https://github.com/Vasileios-Mavroeidis/openc2-plugfest/tree/master/2020-January).
+
+### Conformance
+
+The openc2-iosacl-adapter conforms with the [OpenC2 Language Specification v1.0](https://docs.oasis-open.org/openc2/oc2ls/v1.0/cs01/oc2ls-v1.0-cs01.pdf) and the [Stateless Packet Filtering Specification (SLPF) v1.0](https://docs.oasis-open.org/openc2/oc2slpf/v1.0/cs01/oc2slpf-v1.0-cs01.pdf)
 
 ### Quickstart
 
-Tha main file for executing OpenC2 commands is [*openc2_iosacl_adapter.R*](https://github.com/oasis-open/openc2-iosacl-adapter/tree/master/code)
+
+> **Important Note:** The openc2-iosacl-adapter has been checked in devices that run IOS and IOS-XE.
+Even though that this implementation is mainly written in R, for the execution (communication) 
+of the commands we use the "reticulate" library that provides an interface to python 
+for the simple reason that we use the "netmiko" Pythom library to execute the commands.
+Part of the object or dictionary for specifiyng the connection details with netmiko is providing 
+the device and the version of OS the commands will be executed. In our case this is "cisco_ios" or "cisco_xe".
+Depending on your implementations the following changes should be done (the default is cisco_ios - you dont need to change if your device runs Cisco IOS).
+
+> Change the parameter "device_type" to "cisco_xe" or "cisco_ios". This appears in the files openc2_slpf_cisco_ios_main.R and openc2_slpf_cisco_ios_transport.R 
+
+> An example: connection <- netmiko$ConnectHandler(device_type = "cisco_xe", ip = consumer$hostname, username = consumer$username, password = consumer$password, port = consumer$port)
+
+> OR
+
+> Replace the files openc2_slpf_cisco_ios_main.R and openc2_slpf_cisco_ios_transport.R from the folder "code" with the ones that are provided in its subfolder "IOS-XE".
+
+> If certificates are prefered for authentication, instead of passwords then the parameter "password" should be replaced by the following parameters:
+use_keys = "True"
+key_file = "private_key"
+
+> An example: connection <- netmiko$ConnectHandler(device_type = "cisco_xe", ip = consumer$hostname, username = consumer$username, port = consumer$port, use_keys = "True", key_file = "private_key")
+
+> "key_file" is the private key stored in your device. The public key should be stored on the ssh server (Cisco device).
+
+
+**The main file for executing OpenC2 commands is** [*openc2_iosacl_adapter.R*](https://github.com/oasis-open/openc2-iosacl-adapter/tree/master/code)
 
 *"Rscript openc2_iosacl_adapter.R -- help"* will show all the available options
 
@@ -54,7 +86,7 @@ Execute "Rscript openc2_iosacl_adapter.R -o *'OpenC2_command_enclosed_in_single_
 
 3. Netmiko - "pip install netmiko" or check [here](https://pypi.org/project/netmiko/)
 
-3. Configuration file including relevant actuator/consumer information. You can find an example file that references the appropariate schema [here](https://github.com/oasis-open/openc2-iosacl-adapter/tree/master/sample-actuator-information-file)
+3. Configuration file including relevant actuator/consumer information. You can find an example file that references the appropariate structure [here](https://github.com/oasis-open/openc2-iosacl-adapter/tree/master/sample-actuator-information-file) (this is omitted if we connect the openc2-iosacl-adapter with an orchestrator).
 
 For example:
 ```
@@ -73,7 +105,7 @@ For example:
          }
       }
   ```
-**Required** name/value pairs for the actuator communication [actuators.json](https://github.com/oasis-open/openc2-iosacl-adapter/blob/master/sample-actuator-information-file/actuators.json) are:
+**Required** name/value pairs for communicating with an actuator using the [actuators.json](https://github.com/oasis-open/openc2-iosacl-adapter/blob/master/sample-actuator-information-file/actuators.json) file are:
 1. asset_id
 2. network
     - hostname
@@ -82,6 +114,77 @@ For example:
     - password
     - acl_id
     - acl_type
+    
+### Supported Actions, Targets, Arguments, and Actuator Specifiers
+
+**Actions**
+
+| ID | Name | Description |
+| :--- | :--- | :--- |
+| 3 | **query** | Initiate a request for information. Used to communicate the supported options and determine the state or settings |
+| 6 | **deny** | Prevent traffic or access |
+| 8 | **allow** | Permit traffic or access |
+| 16 | **update** | Instructs the Actuator to update its configuration by retrieving and processing a configuration file and update |
+| 20 | **delete** | Remove an access rule |
+
+**Targets**
+
+| ID | Name | Type | Description |
+| :--- | :--- | :--- | :--- |
+| 9 | **features** | Features | A set of items such as Action/Target pairs, profiles versions, options that are supported by the Actuator. The Target is used with the query Action to determine an Actuator's capabilities |
+| 10 | **file** | File | Properties of a file |
+| 15 | **ipv4_connection** | IPv4-Connection | A network connection as specified by a five-tuple (IPv4) |
+| 16 | **ipv6_connection** | IPv6-Connection | A network connection as specified by a five-tuple (IPv6) |
+
+The semantics/ requirements as they pertain to common targets:
+* ipv4_connection
+    * If the protocol = ICMP, the five-tuple is: src_addr, dst_addr, icmp_type, icmp_code, protocol
+      where the ICMP types and codes are defined in [[RFC2780]](#rfc2780)
+    * If the protocol = TCP, UDP or SCTP, the five-tuple is: src_addr, src_port, dst_addr, dst_port, protocol
+    * For any other protocol, the five-tuple is: src_addr, unused, dst_addr, unused, protocol
+* ipv6_connection
+    * If the protocol = ICMP, the five-tuple is: src_addr, dst_addr, icmp_type, icmp_code, protocol
+      where the ICMP types and codes are defined in [[RFC4443]](#rfc4443)
+    * If the protocol = TCP, UDP or SCTP, the five-tuple is: src_addr, src_port, dst_addr, dst_port, protocol
+    * For any other protocol, the five-tuple is: src_addr, unused, dst_addr, unused, protocol
+
+**Targets Unique to SLPF**
+
+| ID | Name | Type | Description |
+| :--- | :--- | :--- | :--- |
+| 1024 | **rule_number** | Rule-ID | Immutable identifier assigned when a rule is created. Identifies a rule to be deleted |
+
+
+**Arguments**
+
+| ID | Name | Type | # | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| 1 | **start_time** | Date-Time | 0..1 | The specific date/time to initiate the Action |
+| 2 | **stop_time** | Date-Time | 0..1 | The specific date/time to terminate the Action|
+| 3 | **duration** | Duration | 0..1 | The length of time for an Action to be in effect |
+| 4 | **response_requested** | Response-Type | 0..1 | The type of Response required for the Action: **none** and **complete**| 
+
+
+**Arguments Unique to SLPF**
+
+| ID | Name | Type | # | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| 1025 | **persistent** | Boolean | 0..1 | Normal operations assume any changes to a device are to be implemented persistently. Setting the persistent modifier to FALSE results in a change that is not persistent in the event of a reboot or restart |
+| 1027 | **insert_rule** | Rule-ID | 0..1 | Specifies the identifier of the rule within a list, typically used in a top-down rule list |
+
+**Actuator Specifiers**
+
+| ID | Name | Type | # | Description |
+| :--- | :--- | :--- | :--- | :--- |
+| 3 | **asset_id** | String | 0..1 | Unique identifier for a particular SLPF |
+
+**Feautures/Results (Used with "query":"features")**
+
+| ID | Name | Type | # | Description |
+| ---: | :--- | :--- | ---: | :--- |
+| 1 | **versions** | Version | 0..* | List of OpenC2 language versions supported by this Actuator |
+| 2 | **profiles** | ArrayOf(Nsid) | 0..1 | List of profiles supported by this Actuator |
+| 3 | **pairs** | Action-Targets | 0..* | List of targets applicable to each supported Action |
 
 
 ## Author
